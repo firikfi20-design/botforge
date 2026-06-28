@@ -1,0 +1,982 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>BotForge — Telegram боты для бизнеса</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Space+Grotesk:wght@500;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0A0E1A; --bg2: #0F1526; --card: #141B2D; --card2: #1A2240;
+    --border: rgba(255,255,255,0.08); --border2: rgba(255,255,255,0.14);
+    --accent: #5B7FFF; --accent2: #7B9FFF;
+    --accent-glow: rgba(91,127,255,0.18); --accent-glow2: rgba(91,127,255,0.08);
+    --text: #F0F4FF; --text2: #8A9BC0; --text3: #5A6B8A;
+    --green: #34D399; --green-bg: rgba(52,211,153,0.1);
+    --red: #F87171; --red-bg: rgba(248,113,113,0.1);
+    --amber: #FBBF24; --amber-bg: rgba(251,191,36,0.1);
+    --r: 14px; --r2: 10px;
+    --font-display: 'Space Grotesk', sans-serif;
+    --font-body: 'Inter', sans-serif;
+  }
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  html { scroll-behavior: smooth; }
+  body { background: var(--bg); color: var(--text); font-family: var(--font-body); font-size: 15px; line-height: 1.6; }
+
+  /* NAV */
+  nav { position: fixed; top: 0; left: 0; right: 0; z-index: 100; background: rgba(10,14,26,0.85); backdrop-filter: blur(16px); border-bottom: 1px solid var(--border); display: flex; align-items: center; justify-content: space-between; padding: 0 48px; height: 64px; }
+  .nav-logo { font-family: var(--font-display); font-size: 20px; font-weight: 700; color: var(--text); letter-spacing: -0.5px; }
+  .nav-logo span { color: var(--accent); }
+  .nav-links { display: flex; gap: 32px; }
+  .nav-links a { color: var(--text2); text-decoration: none; font-size: 14px; font-weight: 500; transition: color .2s; }
+  .nav-links a:hover { color: var(--text); }
+  .nav-cta { background: var(--accent); color: #fff; border: none; padding: 9px 22px; border-radius: 8px; font-size: 14px; font-weight: 600; cursor: pointer; text-decoration: none; transition: opacity .2s; }
+  .nav-cta:hover { opacity: .85; }
+
+  section { padding: 100px 48px; max-width: 1200px; margin: 0 auto; }
+
+  /* HERO */
+  #hero { padding-top: 160px; padding-bottom: 120px; text-align: center; }
+  .hero-badge { display: inline-flex; align-items: center; gap: 8px; background: var(--accent-glow); border: 1px solid rgba(91,127,255,0.3); border-radius: 20px; padding: 6px 16px; font-size: 13px; color: var(--accent2); font-weight: 500; margin-bottom: 32px; }
+  .hero-badge::before { content: ''; width: 6px; height: 6px; background: var(--green); border-radius: 50%; }
+  .hero-title { font-family: var(--font-display); font-size: clamp(40px,6vw,72px); font-weight: 700; line-height: 1.1; letter-spacing: -1.5px; margin-bottom: 24px; }
+  .hero-title .hl { color: var(--accent); }
+  .hero-sub { font-size: 18px; color: var(--text2); max-width: 560px; margin: 0 auto 48px; line-height: 1.65; }
+  .hero-btns { display: flex; gap: 14px; justify-content: center; flex-wrap: wrap; }
+  .btn-primary { background: var(--accent); color: #fff; border: none; padding: 14px 32px; border-radius: 10px; font-size: 15px; font-weight: 600; cursor: pointer; text-decoration: none; transition: opacity .2s, transform .15s; display: inline-block; }
+  .btn-primary:hover { opacity: .88; transform: translateY(-1px); }
+  .btn-ghost { background: transparent; color: var(--text); border: 1px solid var(--border2); padding: 14px 32px; border-radius: 10px; font-size: 15px; font-weight: 500; cursor: pointer; text-decoration: none; transition: border-color .2s, background .2s; display: inline-block; }
+  .btn-ghost:hover { border-color: var(--accent); background: var(--accent-glow2); }
+  .hero-stats { display: flex; gap: 48px; justify-content: center; margin-top: 72px; padding-top: 48px; border-top: 1px solid var(--border); }
+  .stat-num { font-family: var(--font-display); font-size: 36px; font-weight: 700; color: var(--text); }
+  .stat-label { font-size: 13px; color: var(--text3); margin-top: 2px; }
+
+  /* ABOUT */
+  .section-eyebrow { font-size: 12px; font-weight: 600; letter-spacing: 2px; text-transform: uppercase; color: var(--accent); margin-bottom: 14px; }
+  .section-title { font-family: var(--font-display); font-size: clamp(28px,4vw,44px); font-weight: 700; letter-spacing: -0.8px; margin-bottom: 20px; line-height: 1.15; }
+  .about-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 64px; align-items: center; }
+  .about-text p { color: var(--text2); margin-bottom: 16px; font-size: 16px; }
+  .about-feats { display: flex; flex-direction: column; gap: 16px; margin-top: 32px; }
+  .feat-item { display: flex; align-items: flex-start; gap: 14px; }
+  .feat-icon { width: 36px; height: 36px; border-radius: 9px; background: var(--accent-glow); border: 1px solid rgba(91,127,255,0.25); display: flex; align-items: center; justify-content: center; font-size: 17px; flex-shrink: 0; }
+  .feat-text strong { display: block; font-size: 14px; color: var(--text); font-weight: 600; }
+  .feat-text span { font-size: 13px; color: var(--text2); }
+  .about-card { background: var(--card); border: 1px solid var(--border); border-radius: var(--r); padding: 36px; }
+  .team-photo { width: 72px; height: 72px; border-radius: 50%; background: linear-gradient(135deg, var(--accent), #8B5CF6); display: flex; align-items: center; justify-content: center; font-size: 28px; margin-bottom: 20px; }
+  .about-card h3 { font-family: var(--font-display); font-size: 22px; font-weight: 700; margin-bottom: 8px; }
+  .about-card p { color: var(--text2); font-size: 14px; line-height: 1.65; margin-bottom: 24px; }
+  .tag-list { display: flex; flex-wrap: wrap; gap: 8px; }
+  .tag { background: var(--card2); border: 1px solid var(--border); border-radius: 6px; padding: 4px 12px; font-size: 12px; color: var(--text2); }
+
+  /* CATALOG */
+  .catalog-filters { display: flex; gap: 10px; flex-wrap: wrap; margin-bottom: 40px; }
+  .filter-btn { background: var(--card); border: 1px solid var(--border); border-radius: 8px; padding: 8px 18px; font-size: 13px; font-weight: 500; color: var(--text2); cursor: pointer; transition: all .2s; }
+  .filter-btn:hover, .filter-btn.active { background: var(--accent); border-color: var(--accent); color: #fff; }
+  .bots-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(340px, 1fr)); gap: 20px; }
+  .bot-card { background: var(--card); border: 1px solid var(--border); border-radius: var(--r); padding: 28px; transition: border-color .2s, transform .2s; cursor: pointer; position: relative; overflow: hidden; }
+  .bot-card::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 2px; background: linear-gradient(90deg, var(--accent), #8B5CF6); opacity: 0; transition: opacity .2s; }
+  .bot-card:hover { border-color: rgba(91,127,255,0.4); transform: translateY(-3px); }
+  .bot-card:hover::before { opacity: 1; }
+  .bot-card-top { display: flex; align-items: flex-start; justify-content: space-between; margin-bottom: 16px; }
+  .bot-emoji { font-size: 32px; }
+  .bot-price-badge { background: var(--accent-glow); border: 1px solid rgba(91,127,255,0.25); border-radius: 6px; padding: 4px 10px; font-size: 12px; font-weight: 600; color: var(--accent2); }
+  .bot-name { font-family: var(--font-display); font-size: 19px; font-weight: 700; margin-bottom: 8px; color: var(--text); }
+  .bot-cat { font-size: 12px; color: var(--text3); margin-bottom: 10px; text-transform: uppercase; letter-spacing: 1px; font-weight: 600; }
+  .bot-desc { font-size: 14px; color: var(--text2); line-height: 1.6; margin-bottom: 20px; }
+  .bot-features { list-style: none; display: flex; flex-direction: column; gap: 7px; margin-bottom: 24px; }
+  .bot-features li { font-size: 13px; color: var(--text2); display: flex; align-items: center; gap: 8px; }
+  .bot-features li::before { content: '✓'; color: var(--green); font-weight: 700; font-size: 12px; }
+  .bot-card-footer { display: flex; align-items: center; justify-content: space-between; padding-top: 18px; border-top: 1px solid var(--border); }
+  .bot-duration { font-size: 12px; color: var(--text3); }
+  .btn-order { background: var(--accent); color: #fff; border: none; padding: 9px 20px; border-radius: 8px; font-size: 13px; font-weight: 600; cursor: pointer; transition: opacity .2s; text-decoration: none; display: inline-block; }
+  .btn-order:hover { opacity: .85; }
+
+  /* PRICING */
+  #pricing { text-align: center; }
+  .pricing-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 24px; margin-top: 56px; text-align: left; }
+  .price-card { background: var(--card); border: 1px solid var(--border); border-radius: var(--r); padding: 36px; position: relative; }
+  .price-card.popular { border-color: var(--accent); background: linear-gradient(145deg, var(--card), #1a2445); }
+  .popular-badge { position: absolute; top: -12px; left: 50%; transform: translateX(-50%); background: var(--accent); color: #fff; font-size: 11px; font-weight: 700; padding: 4px 14px; border-radius: 20px; white-space: nowrap; }
+  .price-tier { font-size: 12px; font-weight: 700; letter-spacing: 2px; text-transform: uppercase; color: var(--text3); margin-bottom: 10px; }
+  .price-name { font-family: var(--font-display); font-size: 22px; font-weight: 700; margin-bottom: 6px; }
+  .price-amount { font-family: var(--font-display); font-size: 42px; font-weight: 700; color: var(--text); margin: 16px 0 4px; letter-spacing: -1px; }
+  .price-amount span { font-size: 18px; font-weight: 500; color: var(--text3); }
+  .price-desc { font-size: 13px; color: var(--text2); margin-bottom: 28px; }
+  .price-features { list-style: none; display: flex; flex-direction: column; gap: 12px; margin-bottom: 36px; }
+  .price-features li { font-size: 14px; color: var(--text2); display: flex; align-items: flex-start; gap: 10px; }
+  .price-features li::before { content: '✓'; color: var(--green); font-weight: 700; flex-shrink: 0; margin-top: 1px; }
+  .btn-price { width: 100%; padding: 13px; border-radius: 10px; font-size: 15px; font-weight: 600; cursor: pointer; transition: all .2s; border: none; }
+  .btn-price-outline { background: transparent; color: var(--text); border: 1px solid var(--border2) !important; }
+  .btn-price-outline:hover { border-color: var(--accent) !important; color: var(--accent); }
+  .btn-price-fill { background: var(--accent); color: #fff; }
+  .btn-price-fill:hover { opacity: .88; }
+
+  /* CONTACT */
+  .contact-grid { display: grid; grid-template-columns: 1fr 1.2fr; gap: 64px; align-items: start; }
+  .contact-info h2 { font-family: var(--font-display); font-size: 38px; font-weight: 700; letter-spacing: -0.8px; margin-bottom: 16px; }
+  .contact-info p { color: var(--text2); margin-bottom: 36px; font-size: 16px; }
+  .contact-methods { display: flex; flex-direction: column; gap: 16px; }
+  .c-method { display: flex; align-items: center; gap: 14px; background: var(--card); border: 1px solid var(--border); border-radius: var(--r2); padding: 16px 20px; text-decoration: none; transition: border-color .2s; }
+  .c-method:hover { border-color: var(--accent); }
+  .c-icon { width: 40px; height: 40px; border-radius: 10px; background: var(--accent-glow); display: flex; align-items: center; justify-content: center; font-size: 20px; flex-shrink: 0; }
+  .c-text strong { display: block; font-size: 14px; font-weight: 600; color: var(--text); }
+  .c-text span { font-size: 13px; color: var(--text2); }
+  .contact-form { background: var(--card); border: 1px solid var(--border); border-radius: var(--r); padding: 40px; }
+  .form-row { margin-bottom: 20px; }
+  .form-row label { display: block; font-size: 13px; font-weight: 600; color: var(--text2); margin-bottom: 8px; }
+  .form-row input, .form-row select, .form-row textarea { width: 100%; background: var(--bg2); border: 1px solid var(--border2); border-radius: 10px; padding: 12px 16px; font-size: 14px; color: var(--text); font-family: var(--font-body); outline: none; transition: border-color .2s; }
+  .form-row input:focus, .form-row select:focus, .form-row textarea:focus { border-color: var(--accent); }
+  .form-row textarea { resize: vertical; min-height: 100px; }
+  .form-row select option { background: var(--bg2); }
+  .form-submit { width: 100%; }
+  .success-msg { display: none; text-align: center; padding: 20px; background: var(--green-bg); border: 1px solid rgba(52,211,153,0.25); border-radius: 10px; color: var(--green); font-weight: 600; margin-top: 16px; }
+  .error-msg { display: none; text-align: center; padding: 12px; background: var(--red-bg); border: 1px solid rgba(248,113,113,0.25); border-radius: 10px; color: var(--red); font-size: 14px; margin-top: 12px; }
+
+  /* FOOTER */
+  footer { border-top: 1px solid var(--border); padding: 40px 48px; display: flex; align-items: center; justify-content: space-between; }
+  .footer-logo { font-family: var(--font-display); font-size: 18px; font-weight: 700; }
+  .footer-logo span { color: var(--accent); }
+  .footer-copy { font-size: 13px; color: var(--text3); }
+
+  /* ADMIN OVERLAY */
+  #admin-overlay { display: none; position: fixed; inset: 0; z-index: 1000; background: rgba(5,8,18,0.97); backdrop-filter: blur(8px); overflow-y: auto; }
+  #admin-overlay.open { display: block; }
+  .admin-wrap { max-width: 1100px; margin: 0 auto; padding: 48px 32px; }
+  .admin-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 40px; }
+  .admin-title { font-family: var(--font-display); font-size: 28px; font-weight: 700; }
+  .admin-close { background: var(--card); border: 1px solid var(--border2); border-radius: 8px; padding: 8px 16px; color: var(--text2); cursor: pointer; font-size: 14px; transition: all .2s; }
+  .admin-close:hover { border-color: var(--accent); color: var(--text); }
+  .admin-tabs { display: flex; gap: 4px; background: var(--card); border: 1px solid var(--border); border-radius: 10px; padding: 4px; margin-bottom: 36px; flex-wrap: wrap; }
+  .atab { padding: 9px 22px; border-radius: 7px; font-size: 14px; font-weight: 500; cursor: pointer; color: var(--text2); transition: all .2s; border: none; background: transparent; }
+  .atab.active { background: var(--accent); color: #fff; }
+  .apanel { display: none; }
+  .apanel.active { display: block; }
+  .acard { background: var(--card); border: 1px solid var(--border); border-radius: var(--r); padding: 28px; margin-bottom: 20px; }
+  .acard h3 { font-family: var(--font-display); font-size: 16px; font-weight: 700; margin-bottom: 20px; color: var(--text); }
+  .arow { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 16px; }
+  .afield { display: flex; flex-direction: column; gap: 6px; }
+  .afield label { font-size: 12px; font-weight: 600; color: var(--text3); text-transform: uppercase; letter-spacing: 1px; }
+  .afield input, .afield textarea, .afield select { background: var(--bg2); border: 1px solid var(--border2); border-radius: 8px; padding: 10px 14px; font-size: 14px; color: var(--text); font-family: var(--font-body); outline: none; transition: border-color .2s; }
+  .afield input:focus, .afield textarea:focus, .afield select:focus { border-color: var(--accent); }
+  .afield textarea { resize: vertical; min-height: 80px; }
+  .afield select option { background: #0A0E1A; }
+  .a-btn { background: var(--accent); color: #fff; border: none; padding: 10px 24px; border-radius: 8px; font-size: 14px; font-weight: 600; cursor: pointer; transition: opacity .2s; }
+  .a-btn:hover { opacity: .85; }
+  .a-btn-danger { background: transparent; color: var(--red); border: 1px solid rgba(248,113,113,0.3); }
+  .a-btn-danger:hover { background: var(--red-bg); }
+  .a-btn-ghost { background: transparent; color: var(--text2); border: 1px solid var(--border2); }
+  .a-btn-ghost:hover { border-color: var(--accent); color: var(--text); }
+  .bot-list-admin { display: flex; flex-direction: column; gap: 12px; }
+  .bot-row-admin { display: flex; align-items: center; justify-content: space-between; background: var(--card2); border: 1px solid var(--border); border-radius: 10px; padding: 16px 20px; }
+  .bra-info { display: flex; align-items: center; gap: 14px; }
+  .bra-emoji { font-size: 24px; }
+  .bra-name { font-weight: 600; font-size: 14px; }
+  .bra-cat { font-size: 12px; color: var(--text3); }
+  .bra-price { font-size: 14px; font-weight: 600; color: var(--accent2); margin-right: 16px; }
+  .bra-actions { display: flex; gap: 8px; }
+  .save-notice { background: var(--green-bg); border: 1px solid rgba(52,211,153,0.3); border-radius: 8px; padding: 12px 18px; color: var(--green); font-size: 13px; font-weight: 600; display: none; margin-bottom: 20px; }
+  .feat-editor { display: flex; flex-direction: column; gap: 8px; }
+  .feat-editor-row { display: flex; gap: 8px; }
+  .feat-editor-row input { flex: 1; }
+  .remove-feat { background: transparent; border: 1px solid var(--border2); border-radius: 6px; padding: 6px 10px; color: var(--text3); cursor: pointer; font-size: 16px; line-height: 1; transition: all .2s; }
+  .remove-feat:hover { border-color: var(--red); color: var(--red); }
+  .add-feat-btn { background: transparent; border: 1px dashed var(--border2); border-radius: 8px; padding: 8px; color: var(--text3); cursor: pointer; font-size: 13px; width: 100%; transition: all .2s; margin-top: 4px; }
+  .add-feat-btn:hover { border-color: var(--accent); color: var(--accent2); }
+  #admin-login { max-width: 400px; margin: 80px auto; background: var(--card); border: 1px solid var(--border); border-radius: var(--r); padding: 48px 40px; text-align: center; }
+  #admin-login h2 { font-family: var(--font-display); font-size: 24px; margin-bottom: 8px; }
+  #admin-login p { color: var(--text2); font-size: 14px; margin-bottom: 32px; }
+  #admin-main { display: none; }
+
+  /* Lead card */
+  .lead-card { background: var(--card2); border: 1px solid var(--border); border-radius: 10px; padding: 18px 20px; position: relative; }
+  .lead-card-top { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 8px; }
+  .lead-name { font-weight: 600; font-size: 14px; }
+  .lead-time { font-size: 12px; color: var(--text3); }
+  .lead-meta { font-size: 13px; color: var(--text2); }
+  .lead-msg { font-size: 13px; color: var(--text2); margin-top: 8px; border-top: 1px solid var(--border); padding-top: 8px; }
+  .lead-delete { position: absolute; top: 14px; right: 14px; background: transparent; border: none; color: var(--text3); cursor: pointer; font-size: 16px; transition: color .2s; }
+  .lead-delete:hover { color: var(--red); }
+
+  /* Stats badges */
+  .stats-bar { display: flex; gap: 16px; flex-wrap: wrap; margin-bottom: 24px; }
+  .stat-badge { background: var(--card2); border: 1px solid var(--border); border-radius: 10px; padding: 14px 20px; }
+  .stat-badge .num { font-family: var(--font-display); font-size: 28px; font-weight: 700; color: var(--accent2); }
+  .stat-badge .lbl { font-size: 12px; color: var(--text3); margin-top: 2px; }
+
+  /* Loader */
+  .loader { display: inline-block; width: 18px; height: 18px; border: 2px solid rgba(255,255,255,0.2); border-top-color: #fff; border-radius: 50%; animation: spin .7s linear infinite; }
+  @keyframes spin { to { transform: rotate(360deg); } }
+
+  /* TG badge in admin */
+  .tg-badge { display: inline-flex; align-items: center; gap: 8px; background: rgba(0,136,204,0.15); border: 1px solid rgba(0,136,204,0.3); border-radius: 8px; padding: 10px 16px; font-size: 13px; color: #29B6F6; margin-bottom: 20px; }
+
+  @media (max-width: 900px) {
+    nav { padding: 0 20px; }
+    .nav-links { display: none; }
+    section { padding: 72px 20px; }
+    .about-grid, .contact-grid { grid-template-columns: 1fr; gap: 36px; }
+    .pricing-grid { grid-template-columns: 1fr; }
+    .hero-stats { gap: 28px; flex-wrap: wrap; }
+    footer { flex-direction: column; gap: 12px; text-align: center; padding: 32px 20px; }
+    .arow { grid-template-columns: 1fr; }
+    .admin-tabs { gap: 2px; }
+    .atab { padding: 8px 14px; font-size: 13px; }
+  }
+</style>
+</head>
+<body>
+
+<nav>
+  <div class="nav-logo">Bot<span>Forge</span></div>
+  <div class="nav-links">
+    <a href="#about">О нас</a>
+    <a href="#catalog">Каталог</a>
+    <a href="#pricing">Цены</a>
+    <a href="#contact">Контакты</a>
+  </div>
+  <a href="#contact" class="nav-cta">Заказать бота</a>
+</nav>
+
+<section id="hero">
+  <div class="hero-badge">Делаем Telegram-ботов для бизнеса</div>
+  <h1 class="hero-title">Автоматизируй бизнес<br>с помощью <span class="hl">Telegram-ботов</span></h1>
+  <p class="hero-sub">Создаём умных ботов под ключ: от каталогов и записи до CRM и рассылок. Быстро, надёжно, с поддержкой.</p>
+  <div class="hero-btns">
+    <a href="#catalog" class="btn-primary">Смотреть каталог</a>
+    <a href="#contact" class="btn-ghost">Проконсультироваться</a>
+  </div>
+  <div class="hero-stats">
+    <div><div class="stat-num" id="s-bots">50+</div><div class="stat-label">Ботов запущено</div></div>
+    <div><div class="stat-num" id="s-clients">30+</div><div class="stat-label">Довольных клиентов</div></div>
+    <div><div class="stat-num" id="s-years">3</div><div class="stat-label">Года опыта</div></div>
+    <div><div class="stat-num" id="s-days">7</div><div class="stat-label">Дней до запуска</div></div>
+  </div>
+</section>
+
+<section id="about">
+  <div class="about-grid">
+    <div class="about-text">
+      <div class="section-eyebrow">О нас</div>
+      <h2 class="section-title">Telegram-боты — наша специализация</h2>
+      <p id="about-bio">Основатель BotForge. 5 лет в разработке, специализируюсь на Telegram-ботах.</p>
+      <div class="about-feats">
+        <div class="feat-item"><div class="feat-icon">⚡</div><div class="feat-text"><strong>Быстрый старт</strong><span>Прототип за 48 часов, полная версия за 7–14 дней</span></div></div>
+        <div class="feat-item"><div class="feat-icon">🔒</div><div class="feat-text"><strong>Надёжность</strong><span>Аптайм 99.9%, резервные копии, мониторинг 24/7</span></div></div>
+        <div class="feat-item"><div class="feat-icon">🛠</div><div class="feat-text"><strong>Поддержка</strong><span>Отвечаю в течение 2 часов, правки в рамках гарантии</span></div></div>
+      </div>
+    </div>
+    <div class="about-card">
+      <div class="team-photo" id="about-emoji">👨‍💻</div>
+      <h3 id="about-name">Алишер Каримов</h3>
+      <p id="about-bio-card">Основатель BotForge. Специализируюсь на Telegram-ботах и автоматизации.</p>
+      <div class="tag-list">
+        <span class="tag">Python</span><span class="tag">Node.js</span>
+        <span class="tag">Telegram API</span><span class="tag">PostgreSQL</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="catalog" style="max-width:1200px">
+  <div style="text-align:center; margin-bottom:56px">
+    <div class="section-eyebrow">Каталог</div>
+    <h2 class="section-title">Все виды Telegram-ботов</h2>
+    <p style="color:var(--text2); max-width:520px; margin:0 auto; font-size:16px">Выбери нужный тип бота или закажи кастомное решение</p>
+  </div>
+  <div class="catalog-filters">
+    <button class="filter-btn active" onclick="filterBots('all',this)">Все</button>
+    <button class="filter-btn" onclick="filterBots('sales',this)">Продажи</button>
+    <button class="filter-btn" onclick="filterBots('support',this)">Поддержка</button>
+    <button class="filter-btn" onclick="filterBots('marketing',this)">Маркетинг</button>
+    <button class="filter-btn" onclick="filterBots('internal',this)">Внутренние</button>
+  </div>
+  <div class="bots-grid" id="bots-grid"></div>
+</section>
+
+<section id="pricing">
+  <div class="section-eyebrow">Цены</div>
+  <h2 class="section-title">Прозрачные тарифы</h2>
+  <p style="color:var(--text2); max-width:480px; margin:0 auto; font-size:16px">Никаких скрытых платежей.</p>
+  <div class="pricing-grid" id="pricing-grid"></div>
+</section>
+
+<section id="contact">
+  <div class="contact-grid">
+    <div class="contact-info">
+      <div class="section-eyebrow">Контакты</div>
+      <h2>Обсудим ваш проект</h2>
+      <p>Расскажите о задаче — предложу решение в течение нескольких часов.</p>
+      <div class="contact-methods">
+        <a href="#" class="c-method" id="contact-tg">
+          <div class="c-icon">✈️</div>
+          <div class="c-text"><strong>Telegram</strong><span id="c-tg-val">@botforge_uz</span></div>
+        </a>
+        <a href="#" class="c-method" id="contact-wa">
+          <div class="c-icon">📱</div>
+          <div class="c-text"><strong>WhatsApp</strong><span id="c-wa-val">+998 90 000 00 00</span></div>
+        </a>
+        <a href="#" class="c-method" id="contact-email-link">
+          <div class="c-icon">📧</div>
+          <div class="c-text"><strong>Email</strong><span id="c-email-val">hello@botforge.uz</span></div>
+        </a>
+      </div>
+    </div>
+    <div class="contact-form">
+      <h3 style="font-family:var(--font-display);font-size:20px;font-weight:700;margin-bottom:24px">Оставить заявку</h3>
+      <div class="form-row"><label>Ваше имя</label><input type="text" id="f-name" placeholder="Например: Алишер"></div>
+      <div class="form-row"><label>Telegram / Телефон</label><input type="text" id="f-contact" placeholder="@username или +998..."></div>
+      <div class="form-row"><label>Нужен бот</label><select id="f-bot"><option value="">— Выберите тип бота —</option></select></div>
+      <div class="form-row"><label>Расскажите о задаче</label><textarea id="f-msg" placeholder="Кратко опишите бизнес и что хотите автоматизировать..."></textarea></div>
+      <button class="btn-primary form-submit" id="form-btn" onclick="submitForm()">Отправить заявку</button>
+      <div class="success-msg" id="form-success">✅ Заявка принята! Напишу вам в течение нескольких часов.</div>
+      <div class="error-msg" id="form-error">❌ Ошибка отправки. Попробуйте ещё раз.</div>
+    </div>
+  </div>
+</section>
+
+<footer>
+  <div class="footer-logo">Bot<span>Forge</span></div>
+  <div class="footer-copy" id="footer-copy">© 2025 BotForge. Telegram-боты для бизнеса.</div>
+  <button onclick="openAdmin()" style="background:transparent;border:none;color:var(--text3);font-size:12px;cursor:pointer;padding:4px 8px;border-radius:4px;transition:color .2s" onmouseover="this.style.color='var(--text2)'" onmouseout="this.style.color='var(--text3)'">⚙ Админ</button>
+</footer>
+
+<!-- ADMIN OVERLAY -->
+<div id="admin-overlay">
+  <div class="admin-wrap">
+
+    <div id="admin-login">
+      <h2>🔐 Вход в панель</h2>
+      <p>Введите пароль для доступа к настройкам</p>
+      <div class="afield" style="margin-bottom:16px"><input type="password" id="admin-pwd" placeholder="Пароль" onkeydown="if(event.key==='Enter')adminLogin()"></div>
+      <button class="a-btn" style="width:100%;display:flex;align-items:center;justify-content:center;gap:10px" id="login-btn" onclick="adminLogin()">Войти</button>
+      <p style="color:var(--red);font-size:13px;margin-top:12px;display:none" id="pwd-err">Неверный пароль</p>
+    </div>
+
+    <div id="admin-main">
+      <div class="admin-header">
+        <div class="admin-title">⚙ Панель управления</div>
+        <div style="display:flex;gap:10px;align-items:center">
+          <span style="font-size:13px;color:var(--text3)" id="tg-status">🤖 Бот активен</span>
+          <button class="admin-close" onclick="closeAdmin()">✕ Закрыть</button>
+        </div>
+      </div>
+
+      <div class="admin-tabs">
+        <button class="atab active" onclick="switchTab('bots',this)">🤖 Боты</button>
+        <button class="atab" onclick="switchTab('pricing',this)">💰 Тарифы</button>
+        <button class="atab" onclick="switchTab('info',this)">👤 О нас</button>
+        <button class="atab" onclick="switchTab('contacts',this)">📞 Контакты</button>
+        <button class="atab" onclick="switchTab('leads',this)">📋 Заявки</button>
+        <button class="atab" onclick="switchTab('settings',this)">🔧 Настройки</button>
+      </div>
+
+      <div id="save-notice" class="save-notice">✅ Изменения сохранены!</div>
+
+      <!-- BOTS TAB -->
+      <div class="apanel active" id="tab-bots">
+        <div class="acard">
+          <h3>Список ботов в каталоге</h3>
+          <div class="bot-list-admin" id="bot-list-admin"></div>
+          <button class="a-btn" style="margin-top:20px" onclick="addNewBot()">+ Добавить бота</button>
+        </div>
+        <div class="acard" id="bot-editor" style="display:none">
+          <h3 id="bot-editor-title">Редактировать бота</h3>
+          <div class="arow">
+            <div class="afield"><label>Эмодзи</label><input type="text" id="be-emoji" placeholder="🤖"></div>
+            <div class="afield"><label>Название</label><input type="text" id="be-name" placeholder="Название бота"></div>
+          </div>
+          <div class="arow">
+            <div class="afield"><label>Категория</label>
+              <select id="be-cat">
+                <option value="sales">Продажи</option>
+                <option value="support">Поддержка</option>
+                <option value="marketing">Маркетинг</option>
+                <option value="internal">Внутренние</option>
+              </select>
+            </div>
+            <div class="afield"><label>Цена</label><input type="text" id="be-price" placeholder="от $150"></div>
+          </div>
+          <div class="afield" style="margin-bottom:14px"><label>Краткое описание</label><textarea id="be-desc" rows="2"></textarea></div>
+          <div class="afield" style="margin-bottom:14px">
+            <label>Функции бота</label>
+            <div class="feat-editor" id="feat-editor"></div>
+            <button class="add-feat-btn" onclick="addFeatField()">+ Добавить функцию</button>
+          </div>
+          <div class="arow">
+            <div class="afield"><label>Срок разработки</label><input type="text" id="be-duration" placeholder="5–10 дней"></div>
+            <div></div>
+          </div>
+          <div style="display:flex;gap:10px;margin-top:8px;flex-wrap:wrap">
+            <button class="a-btn" id="save-bot-btn" onclick="saveBot()">Сохранить</button>
+            <button class="a-btn a-btn-ghost" onclick="cancelEdit()">Отмена</button>
+            <button class="a-btn a-btn-danger" onclick="deleteBot()" id="delete-btn">Удалить</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- PRICING TAB -->
+      <div class="apanel" id="tab-pricing">
+        <div id="pricing-editor"></div>
+        <button class="a-btn" id="save-plans-btn" onclick="savePlans()">💾 Сохранить тарифы</button>
+      </div>
+
+      <!-- INFO TAB -->
+      <div class="apanel" id="tab-info">
+        <div class="acard">
+          <h3>О команде / о нас</h3>
+          <div class="arow">
+            <div class="afield"><label>Имя / команда</label><input type="text" id="ai-name"></div>
+            <div class="afield"><label>Эмодзи аватара</label><input type="text" id="ai-emoji"></div>
+          </div>
+          <div class="afield" style="margin-bottom:14px"><label>Описание</label><textarea id="ai-bio" rows="4"></textarea></div>
+          <div class="arow">
+            <div class="afield"><label>Ботов запущено</label><input type="text" id="ai-bots"></div>
+            <div class="afield"><label>Клиентов</label><input type="text" id="ai-clients"></div>
+          </div>
+          <div class="arow">
+            <div class="afield"><label>Лет опыта</label><input type="text" id="ai-years"></div>
+            <div class="afield"><label>Дней до запуска</label><input type="text" id="ai-days"></div>
+          </div>
+          <button class="a-btn" onclick="saveInfo()">Сохранить</button>
+        </div>
+      </div>
+
+      <!-- CONTACTS TAB -->
+      <div class="apanel" id="tab-contacts">
+        <div class="acard">
+          <h3>Контактные данные</h3>
+          <div class="arow">
+            <div class="afield"><label>Telegram (username)</label><input type="text" id="ac-tg" placeholder="@botforge_uz"></div>
+            <div class="afield"><label>WhatsApp (номер)</label><input type="text" id="ac-wa" placeholder="+998 90 000 00 00"></div>
+          </div>
+          <div class="arow">
+            <div class="afield"><label>Email</label><input type="text" id="ac-email"></div>
+            <div class="afield"><label>Ссылка Telegram</label><input type="text" id="ac-tg-href"></div>
+          </div>
+          <div class="afield" style="margin-bottom:14px"><label>Текст в футере</label><input type="text" id="ac-footer"></div>
+          <button class="a-btn" onclick="saveContacts()">Сохранить</button>
+        </div>
+      </div>
+
+      <!-- LEADS TAB -->
+      <div class="apanel" id="tab-leads">
+        <div class="acard">
+          <div class="tg-badge">🤖 Новые заявки автоматически приходят в ваш Telegram-бот</div>
+          <div class="stats-bar" id="leads-stats"></div>
+          <h3>Заявки с сайта</h3>
+          <div id="leads-list" style="display:flex;flex-direction:column;gap:12px"></div>
+          <div style="display:flex;gap:10px;margin-top:20px;flex-wrap:wrap">
+            <button class="a-btn" onclick="loadLeads()">🔄 Обновить</button>
+            <button class="a-btn a-btn-danger" onclick="clearLeads()">Очистить все заявки</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- SETTINGS TAB -->
+      <div class="apanel" id="tab-settings">
+        <div class="acard">
+          <h3>Смена пароля</h3>
+          <div class="afield" style="margin-bottom:14px"><label>Новый пароль</label><input type="password" id="new-pwd" placeholder="Минимум 4 символа"></div>
+          <div class="afield" style="margin-bottom:14px"><label>Повторите пароль</label><input type="password" id="new-pwd2" placeholder="Повторите пароль"></div>
+          <button class="a-btn" onclick="changePwd()">Сменить пароль</button>
+          <p id="pwd-change-msg" style="margin-top:12px;font-size:13px"></p>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<script>
+// ── API helpers ────────────────────────────────────────────────
+const API = '/api';
+let adminToken = null;
+
+async function apiFetch(path, opts = {}) {
+  const headers = { 'Content-Type': 'application/json', ...(opts.headers || {}) };
+  if (adminToken) headers['x-admin-token'] = adminToken;
+  const res = await fetch(API + path, { ...opts, headers });
+  if (!res.ok) throw new Error(await res.text());
+  return res.json();
+}
+
+// ── State ──────────────────────────────────────────────────────
+let bots = [], plans = [], settings = {}, editingBotId = null;
+
+// ── Init ───────────────────────────────────────────────────────
+async function init() {
+  try {
+    [bots, plans, settings] = await Promise.all([
+      apiFetch('/bots'),
+      apiFetch('/plans'),
+      apiFetch('/settings'),
+    ]);
+    renderSite();
+  } catch(e) {
+    console.error('Init error:', e);
+  }
+}
+
+function renderSite() {
+  renderBots('all');
+  renderPricing();
+  renderInfo();
+  renderContacts();
+  populateBotSelect();
+}
+
+// ── Render Bots ────────────────────────────────────────────────
+function catLabel(c) {
+  return {sales:'Продажи',support:'Поддержка',marketing:'Маркетинг',internal:'Внутренние'}[c] || c;
+}
+
+function renderBots(cat) {
+  const filtered = cat === 'all' ? bots : bots.filter(b => b.cat === cat);
+  document.getElementById('bots-grid').innerHTML = filtered.map(b => `
+    <div class="bot-card">
+      <div class="bot-card-top">
+        <div class="bot-emoji">${b.emoji}</div>
+        <div class="bot-price-badge">${b.price}</div>
+      </div>
+      <div class="bot-cat">${catLabel(b.cat)}</div>
+      <div class="bot-name">${b.name}</div>
+      <div class="bot-desc">${b.description}</div>
+      <ul class="bot-features">${b.features.map(f=>`<li>${f}</li>`).join('')}</ul>
+      <div class="bot-card-footer">
+        <div class="bot-duration">⏱ ${b.duration}</div>
+        <a href="#contact" class="btn-order" onclick="document.getElementById('f-bot').value='${b.name}'">Заказать</a>
+      </div>
+    </div>
+  `).join('');
+}
+
+function filterBots(cat, btn) {
+  document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  renderBots(cat);
+}
+
+// ── Render Pricing ─────────────────────────────────────────────
+function renderPricing() {
+  document.getElementById('pricing-grid').innerHTML = plans.map(p => `
+    <div class="price-card${p.popular?' popular':''}">
+      ${p.popular?'<div class="popular-badge">⭐ Популярный</div>':''}
+      <div class="price-tier">${p.tier}</div>
+      <div class="price-name">${p.name}</div>
+      <div class="price-amount">${p.price} <span>${p.period}</span></div>
+      <div class="price-desc">${p.description}</div>
+      <ul class="price-features">${p.features.map(f=>`<li>${f}</li>`).join('')}</ul>
+      <button class="${p.popular?'btn-price btn-price-fill':'btn-price btn-price-outline'}" onclick="document.getElementById('contact').scrollIntoView({behavior:'smooth'})">${p.popular?'Выбрать тариф':'Начать'}</button>
+    </div>
+  `).join('');
+}
+
+// ── Render Info ────────────────────────────────────────────────
+function renderInfo() {
+  const s = settings;
+  document.getElementById('s-bots').textContent = s.info_bots || '50+';
+  document.getElementById('s-clients').textContent = s.info_clients || '30+';
+  document.getElementById('s-years').textContent = s.info_years || '3';
+  document.getElementById('s-days').textContent = s.info_days || '7';
+  document.getElementById('about-name').textContent = s.info_name || '';
+  document.getElementById('about-bio').textContent = s.info_bio || '';
+  document.getElementById('about-bio-card').textContent = s.info_bio || '';
+  document.getElementById('about-emoji').textContent = s.info_emoji || '👨‍💻';
+}
+
+function renderContacts() {
+  const s = settings;
+  document.getElementById('c-tg-val').textContent = s.contact_tg || '';
+  document.getElementById('c-wa-val').textContent = s.contact_wa || '';
+  document.getElementById('c-email-val').textContent = s.contact_email || '';
+  document.getElementById('footer-copy').textContent = s.contact_footer || '';
+  document.getElementById('contact-tg').href = s.contact_tg_href || '#';
+  document.getElementById('contact-wa').href = s.contact_wa ? `https://wa.me/${s.contact_wa.replace(/\D/g,'')}` : '#';
+  document.getElementById('contact-email-link').href = s.contact_email ? `mailto:${s.contact_email}` : '#';
+}
+
+function populateBotSelect() {
+  const sel = document.getElementById('f-bot');
+  const cur = sel.value;
+  sel.innerHTML = '<option value="">— Выберите тип бота —</option>' + bots.map(b=>`<option value="${b.name}">${b.emoji} ${b.name}</option>`).join('');
+  if (cur) sel.value = cur;
+}
+
+// ── Contact form ───────────────────────────────────────────────
+async function submitForm() {
+  const name = document.getElementById('f-name').value.trim();
+  const contact = document.getElementById('f-contact').value.trim();
+  const bot = document.getElementById('f-bot').value;
+  const msg = document.getElementById('f-msg').value.trim();
+  if (!name || !contact) { alert('Пожалуйста, заполните имя и контакт'); return; }
+
+  const btn = document.getElementById('form-btn');
+  btn.innerHTML = '<span class="loader"></span>';
+  btn.disabled = true;
+  document.getElementById('form-success').style.display = 'none';
+  document.getElementById('form-error').style.display = 'none';
+
+  try {
+    await apiFetch('/leads', {
+      method: 'POST',
+      body: JSON.stringify({ name, contact, bot, message: msg })
+    });
+    document.getElementById('form-success').style.display = 'block';
+    document.getElementById('f-name').value = '';
+    document.getElementById('f-contact').value = '';
+    document.getElementById('f-bot').value = '';
+    document.getElementById('f-msg').value = '';
+  } catch(e) {
+    document.getElementById('form-error').style.display = 'block';
+  } finally {
+    btn.innerHTML = 'Отправить заявку';
+    btn.disabled = false;
+  }
+}
+
+// ── Admin ──────────────────────────────────────────────────────
+function openAdmin() {
+  document.getElementById('admin-overlay').classList.add('open');
+  document.body.style.overflow = 'hidden';
+  document.getElementById('admin-login').style.display = 'block';
+  document.getElementById('admin-main').style.display = 'none';
+  document.getElementById('admin-pwd').value = '';
+  document.getElementById('pwd-err').style.display = 'none';
+}
+
+function closeAdmin() {
+  document.getElementById('admin-overlay').classList.remove('open');
+  document.body.style.overflow = '';
+}
+
+async function adminLogin() {
+  const pwd = document.getElementById('admin-pwd').value;
+  const btn = document.getElementById('login-btn');
+  btn.innerHTML = '<span class="loader"></span> Вход...';
+  btn.disabled = true;
+  try {
+    const res = await fetch('/api/auth/login', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ password: pwd })
+    });
+    const data = await res.json();
+    if (data.success) {
+      adminToken = data.token;
+      document.getElementById('admin-login').style.display = 'none';
+      document.getElementById('admin-main').style.display = 'block';
+      renderAdminBots();
+      renderAdminPricing();
+      fillInfoForm();
+      fillContactsForm();
+      loadLeads();
+    } else {
+      document.getElementById('pwd-err').style.display = 'block';
+    }
+  } catch(e) {
+    document.getElementById('pwd-err').style.display = 'block';
+    document.getElementById('pwd-err').textContent = 'Ошибка соединения с сервером';
+  } finally {
+    btn.innerHTML = 'Войти';
+    btn.disabled = false;
+  }
+}
+
+function switchTab(name, btn) {
+  document.querySelectorAll('.atab').forEach(t => t.classList.remove('active'));
+  document.querySelectorAll('.apanel').forEach(p => p.classList.remove('active'));
+  btn.classList.add('active');
+  document.getElementById('tab-' + name).classList.add('active');
+  if (name === 'leads') loadLeads();
+}
+
+function showSaved() {
+  const el = document.getElementById('save-notice');
+  el.style.display = 'block';
+  setTimeout(() => el.style.display = 'none', 2500);
+}
+
+// ── Admin Bots ─────────────────────────────────────────────────
+function renderAdminBots() {
+  document.getElementById('bot-list-admin').innerHTML = bots.map(b => `
+    <div class="bot-row-admin">
+      <div class="bra-info">
+        <div class="bra-emoji">${b.emoji}</div>
+        <div><div class="bra-name">${b.name}</div><div class="bra-cat">${catLabel(b.cat)}</div></div>
+      </div>
+      <div style="display:flex;align-items:center">
+        <div class="bra-price">${b.price}</div>
+        <div class="bra-actions">
+          <button class="a-btn a-btn-ghost" style="padding:7px 14px;font-size:13px" onclick="editBot(${b.id})">Изменить</button>
+        </div>
+      </div>
+    </div>
+  `).join('');
+}
+
+function editBot(id) {
+  const b = bots.find(x => x.id === id);
+  if (!b) return;
+  editingBotId = id;
+  document.getElementById('bot-editor-title').textContent = 'Редактировать: ' + b.name;
+  document.getElementById('be-emoji').value = b.emoji;
+  document.getElementById('be-name').value = b.name;
+  document.getElementById('be-cat').value = b.cat;
+  document.getElementById('be-price').value = b.price;
+  document.getElementById('be-desc').value = b.description;
+  document.getElementById('be-duration').value = b.duration;
+  document.getElementById('delete-btn').style.display = 'inline-block';
+  renderFeatEditor(b.features || []);
+  document.getElementById('bot-editor').style.display = 'block';
+  document.getElementById('bot-editor').scrollIntoView({ behavior: 'smooth' });
+}
+
+function addNewBot() {
+  editingBotId = null;
+  document.getElementById('bot-editor-title').textContent = 'Новый бот';
+  document.getElementById('be-emoji').value = '🤖';
+  document.getElementById('be-name').value = '';
+  document.getElementById('be-cat').value = 'sales';
+  document.getElementById('be-price').value = '';
+  document.getElementById('be-desc').value = '';
+  document.getElementById('be-duration').value = '';
+  document.getElementById('delete-btn').style.display = 'none';
+  renderFeatEditor([]);
+  document.getElementById('bot-editor').style.display = 'block';
+  document.getElementById('bot-editor').scrollIntoView({ behavior: 'smooth' });
+}
+
+function renderFeatEditor(feats) {
+  document.getElementById('feat-editor').innerHTML = feats.map((f, i) => `
+    <div class="feat-editor-row">
+      <input type="text" value="${f}" placeholder="Функция бота...">
+      <button class="remove-feat" onclick="removeFeat(${i})">✕</button>
+    </div>
+  `).join('');
+}
+
+function addFeatField() {
+  const feats = getCurrentFeats();
+  feats.push('');
+  renderFeatEditor(feats);
+}
+
+function removeFeat(i) {
+  const feats = getCurrentFeats();
+  feats.splice(i, 1);
+  renderFeatEditor(feats);
+}
+
+function getCurrentFeats() {
+  return [...document.querySelectorAll('#feat-editor input')].map(i => i.value).filter(v => v.trim());
+}
+
+async function saveBot() {
+  const b = {
+    emoji: document.getElementById('be-emoji').value || '🤖',
+    name: document.getElementById('be-name').value.trim(),
+    cat: document.getElementById('be-cat').value,
+    price: document.getElementById('be-price').value,
+    description: document.getElementById('be-desc').value,
+    features: getCurrentFeats(),
+    duration: document.getElementById('be-duration').value,
+  };
+  if (!b.name) return;
+
+  const btn = document.getElementById('save-bot-btn');
+  btn.innerHTML = '<span class="loader"></span>';
+  btn.disabled = true;
+  try {
+    if (editingBotId) {
+      await apiFetch(`/bots/${editingBotId}`, { method: 'PUT', body: JSON.stringify(b) });
+    } else {
+      await apiFetch('/bots', { method: 'POST', body: JSON.stringify(b) });
+    }
+    bots = await apiFetch('/bots');
+    renderBots('all'); renderAdminBots(); populateBotSelect();
+    document.getElementById('bot-editor').style.display = 'none';
+    editingBotId = null;
+    showSaved();
+  } catch(e) { alert('Ошибка сохранения'); }
+  finally { btn.innerHTML = 'Сохранить'; btn.disabled = false; }
+}
+
+function cancelEdit() { document.getElementById('bot-editor').style.display = 'none'; editingBotId = null; }
+
+async function deleteBot() {
+  if (!editingBotId || !confirm('Удалить этого бота?')) return;
+  try {
+    await apiFetch(`/bots/${editingBotId}`, { method: 'DELETE' });
+    bots = await apiFetch('/bots');
+    renderBots('all'); renderAdminBots(); populateBotSelect();
+    document.getElementById('bot-editor').style.display = 'none';
+    editingBotId = null;
+    showSaved();
+  } catch(e) { alert('Ошибка удаления'); }
+}
+
+// ── Admin Pricing ──────────────────────────────────────────────
+function renderAdminPricing() {
+  document.getElementById('pricing-editor').innerHTML = plans.map((p, i) => `
+    <div class="acard">
+      <h3>Тариф: ${p.name} ${p.popular ? '⭐' : ''}</h3>
+      <div class="arow">
+        <div class="afield"><label>Название</label><input type="text" value="${p.name}" onchange="plans[${i}].name=this.value"></div>
+        <div class="afield"><label>Подзаголовок</label><input type="text" value="${p.tier}" onchange="plans[${i}].tier=this.value"></div>
+      </div>
+      <div class="arow">
+        <div class="afield"><label>Цена</label><input type="text" value="${p.price}" onchange="plans[${i}].price=this.value"></div>
+        <div class="afield"><label>Период</label><input type="text" value="${p.period}" onchange="plans[${i}].period=this.value"></div>
+      </div>
+      <div class="afield" style="margin-bottom:14px"><label>Описание</label><input type="text" value="${p.description}" onchange="plans[${i}].description=this.value"></div>
+      <div class="afield" style="margin-bottom:14px"><label>Функции (по одной в строке)</label><textarea rows="5" onchange="plans[${i}].features=this.value.split('\\n').filter(x=>x.trim())">${p.features.join('\n')}</textarea></div>
+      <div class="afield" style="margin-bottom:8px"><label><input type="checkbox" ${p.popular ? 'checked' : ''} onchange="plans.forEach((_,j)=>plans[j].popular=false);plans[${i}].popular=this.checked;renderAdminPricing()"> Отметить как популярный</label></div>
+    </div>
+  `).join('');
+}
+
+async function savePlans() {
+  const btn = document.getElementById('save-plans-btn');
+  btn.innerHTML = '<span class="loader"></span>';
+  btn.disabled = true;
+  try {
+    await apiFetch('/plans', { method: 'PUT', body: JSON.stringify(plans) });
+    plans = await apiFetch('/plans');
+    renderPricing(); renderAdminPricing();
+    showSaved();
+  } catch(e) { alert('Ошибка сохранения'); }
+  finally { btn.innerHTML = '💾 Сохранить тарифы'; btn.disabled = false; }
+}
+
+// ── Admin Info ─────────────────────────────────────────────────
+function fillInfoForm() {
+  const s = settings;
+  document.getElementById('ai-name').value = s.info_name || '';
+  document.getElementById('ai-emoji').value = s.info_emoji || '';
+  document.getElementById('ai-bio').value = s.info_bio || '';
+  document.getElementById('ai-bots').value = s.info_bots || '';
+  document.getElementById('ai-clients').value = s.info_clients || '';
+  document.getElementById('ai-years').value = s.info_years || '';
+  document.getElementById('ai-days').value = s.info_days || '';
+}
+
+async function saveInfo() {
+  const upd = {
+    info_name: document.getElementById('ai-name').value,
+    info_emoji: document.getElementById('ai-emoji').value,
+    info_bio: document.getElementById('ai-bio').value,
+    info_bots: document.getElementById('ai-bots').value,
+    info_clients: document.getElementById('ai-clients').value,
+    info_years: document.getElementById('ai-years').value,
+    info_days: document.getElementById('ai-days').value,
+  };
+  try {
+    await apiFetch('/settings', { method: 'PUT', body: JSON.stringify(upd) });
+    Object.assign(settings, upd);
+    renderInfo();
+    showSaved();
+  } catch(e) { alert('Ошибка сохранения'); }
+}
+
+// ── Admin Contacts ─────────────────────────────────────────────
+function fillContactsForm() {
+  const s = settings;
+  document.getElementById('ac-tg').value = s.contact_tg || '';
+  document.getElementById('ac-wa').value = s.contact_wa || '';
+  document.getElementById('ac-email').value = s.contact_email || '';
+  document.getElementById('ac-tg-href').value = s.contact_tg_href || '';
+  document.getElementById('ac-footer').value = s.contact_footer || '';
+}
+
+async function saveContacts() {
+  const upd = {
+    contact_tg: document.getElementById('ac-tg').value,
+    contact_wa: document.getElementById('ac-wa').value,
+    contact_email: document.getElementById('ac-email').value,
+    contact_tg_href: document.getElementById('ac-tg-href').value,
+    contact_footer: document.getElementById('ac-footer').value,
+  };
+  try {
+    await apiFetch('/settings', { method: 'PUT', body: JSON.stringify(upd) });
+    Object.assign(settings, upd);
+    renderContacts();
+    showSaved();
+  } catch(e) { alert('Ошибка сохранения'); }
+}
+
+// ── Admin Leads ────────────────────────────────────────────────
+async function loadLeads() {
+  try {
+    const leads = await apiFetch('/leads');
+    // Stats
+    const today = new Date().toDateString();
+    const todayCount = leads.filter(l => new Date(l.created_at).toDateString() === today).length;
+    document.getElementById('leads-stats').innerHTML = `
+      <div class="stat-badge"><div class="num">${leads.length}</div><div class="lbl">Всего заявок</div></div>
+      <div class="stat-badge"><div class="num">${todayCount}</div><div class="lbl">Сегодня</div></div>
+    `;
+    // List
+    const el = document.getElementById('leads-list');
+    if (!leads.length) {
+      el.innerHTML = '<p style="color:var(--text3);font-size:14px">Заявок пока нет. Когда клиент заполнит форму — заявка придёт сюда и в Telegram-бот.</p>';
+      return;
+    }
+    el.innerHTML = leads.map(l => {
+      const d = new Date(l.created_at);
+      const time = d.toLocaleString('ru-RU', { day:'2-digit', month:'2-digit', hour:'2-digit', minute:'2-digit' });
+      return `
+        <div class="lead-card">
+          <button class="lead-delete" onclick="deleteLead(${l.id})" title="Удалить">✕</button>
+          <div class="lead-card-top">
+            <div class="lead-name">${l.name || '—'}</div>
+            <div class="lead-time">${time}</div>
+          </div>
+          <div class="lead-meta">📱 ${l.contact || '—'} &nbsp;|&nbsp; 🤖 ${l.bot || '—'}</div>
+          ${l.message ? `<div class="lead-msg">💬 ${l.message}</div>` : ''}
+        </div>
+      `;
+    }).join('');
+  } catch(e) {
+    document.getElementById('leads-list').innerHTML = '<p style="color:var(--red);font-size:14px">Ошибка загрузки заявок</p>';
+  }
+}
+
+async function deleteLead(id) {
+  try {
+    await apiFetch(`/leads/${id}`, { method: 'DELETE' });
+    loadLeads();
+  } catch(e) { alert('Ошибка удаления'); }
+}
+
+async function clearLeads() {
+  if (!confirm('Удалить все заявки?')) return;
+  try {
+    await apiFetch('/leads', { method: 'DELETE' });
+    loadLeads();
+  } catch(e) { alert('Ошибка'); }
+}
+
+// ── Change Password ────────────────────────────────────────────
+async function changePwd() {
+  const p1 = document.getElementById('new-pwd').value;
+  const p2 = document.getElementById('new-pwd2').value;
+  const msg = document.getElementById('pwd-change-msg');
+  if (!p1 || p1.length < 4) { msg.textContent = 'Пароль слишком короткий'; msg.style.color = 'var(--red)'; return; }
+  if (p1 !== p2) { msg.textContent = 'Пароли не совпадают'; msg.style.color = 'var(--red)'; return; }
+  try {
+    const res = await apiFetch('/auth/change-password', { method: 'POST', body: JSON.stringify({ newPassword: p1 }) });
+    adminToken = res.newToken;
+    msg.textContent = '✅ Пароль изменён';
+    msg.style.color = 'var(--green)';
+    document.getElementById('new-pwd').value = '';
+    document.getElementById('new-pwd2').value = '';
+  } catch(e) { msg.textContent = 'Ошибка'; msg.style.color = 'var(--red)'; }
+}
+
+// ── Start ──────────────────────────────────────────────────────
+init();
+</script>
+</body>
+</html>
